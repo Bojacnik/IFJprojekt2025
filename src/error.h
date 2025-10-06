@@ -4,6 +4,7 @@
 #include "token.h"
 
 typedef enum ErrorType {
+    ERROR_OK = 0,
     ERROR_LEXICAL = 1,
     ERROR_SYNTAX = 2,
     ERROR_SEMANTIC_USEOFUNDEFINED = 3,
@@ -16,6 +17,7 @@ typedef enum ErrorType {
 
 typedef struct ErrorOrToken {
     bool isError;
+
     union {
         ErrorType errorType;
         Token token;

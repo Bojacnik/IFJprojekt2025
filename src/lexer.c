@@ -1,6 +1,7 @@
 ﻿#include "lexer.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "string_builder.h"
@@ -57,70 +58,74 @@ ErrorOrToken GetNextToken(FILE *source) {
                     continue;
                 case LS_IDENTIFIERKEYWORD:
                     token.isError = false;
-                    char *str = sb->buffer;
+                    char *strId = sb->buffer;
                     StringBuilder_dtor(sb, false);
-                    const KeywordType kw = iskeyword(str, sb->count);
+                    const KeywordType kw = iskeyword(strId, sb->count);
                     if (kw != KWTYPE_NONE) {
                         return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_KEYWORD, .keyword_type = kw}};
                     }
-                    return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_IDENTIFIER, .identifier = str}};
+                    return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_IDENTIFIER, .identifier = strId}};
                 case LS_INTORFLOAT:
                     token.isError = false;
-                    char *str = sb->buffer;
+                    char *strInt = sb->buffer;
                     StringBuilder_dtor(sb, false);
-                    return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE
-                    break;
+                    return (ErrorOrToken){
+                        .isError = false, .token = {.type = TKTYPE_LITERAL_INT, .int_value = atoi(strInt)}
+                    };
                 case LS_FLOAT:
-                    break;
+                    token.isError = false;
+                    char *strFloat = sb->buffer;
+                    StringBuilder_dtor(sb, false);
+                    return (ErrorOrToken){
+                        .isError = false, .token = {.type = TKTYPE_LITERAL_FLOAT, .float_value = (float) atof(strFloat)}
+                    };
             }
-        }
-
-        // if starts with letter, it's identifier or can be keyword
-        if (isletter((char) c)) {
-            switch (state) {
-                case LS_NONE:
-                    state = LS_IDENTIFIERKEYWORD;
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_IDENTIFIERKEYWORD:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_INTORFLOAT:
-                    // ERROR
-                    ErrorOrToken result;
-                    result.isError = true;
-                    result.errorType = ERROR_LEXICAL;
-                    StringBuilder_dtor(sb, true);
-                    return result;
-                case LS_FLOAT:
-                    // ERROR
-                    ErrorOrToken result2;
-                    result2.isError = true;
-                    result2.errorType = ERROR_LEXICAL;
-                    StringBuilder_dtor(sb, true);
-                    return result2;
-            }
-        }
-
-        if (isdigit((char) c)) {
-            switch (state) {
-                case LS_NONE:
-                    state = LS_INTORFLOAT;
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_IDENTIFIERKEYWORD:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_INTORFLOAT:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_FLOAT:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-            }
+            break;
         }
     }
 
-    StringBuilder_dtor(sb, false);
-    return token;
+    // if starts with letter, it's identifier or can be keyword
+    if (isletter((char) c)) {
+        switch (state) {
+            case LS_NONE:
+                state = LS_IDENTIFIERKEYWORD;
+                StringBuilder_Add(sb, (char) c);
+                break;
+            case LS_IDENTIFIERKEYWORD:
+                StringBuilder_Add(sb, (char) c);
+                break;
+            case LS_INTORFLOAT:
+                // ERROR
+                ErrorOrToken result;
+                result.isError = true;
+                result.errorType = ERROR_LEXICAL;
+                StringBuilder_dtor(sb, true);
+                return result;
+            case LS_FLOAT:
+                // ERROR
+                ErrorOrToken result2;
+                result2.isError = true;
+                result2.errorType = ERROR_LEXICAL;
+                StringBuilder_dtor(sb, true);
+                return result2;
+        }
+    }
+
+    if (isdigit((char) c)) {
+        switch (state) {
+            case LS_NONE:
+                state = LS_INTORFLOAT;
+                StringBuilder_Add(sb, (char) c);
+                break;
+            case LS_IDENTIFIERKEYWORD:
+                StringBuilder_Add(sb, (char) c);
+                break;
+            case LS_INTORFLOAT:
+                StringBuilder_Add(sb, (char) c);
+                break;
+            case LS_FLOAT:
+                StringBuilder_Add(sb, (char) c);
+                break;
+        }
+    }
 }

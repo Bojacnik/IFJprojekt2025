@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 
-StringBuilder* StringBuilder_ctor(const size_t capacity) {
-    StringBuilder* sb = malloc(sizeof(StringBuilder));
-    sb->buffer = malloc(capacity*sizeof(char));
+StringBuilder *StringBuilder_ctor(const size_t capacity) {
+    StringBuilder *sb = malloc(sizeof(StringBuilder));
+    sb->buffer = malloc(capacity * sizeof(char));
     sb->capacity = capacity;
     return sb;
 }
@@ -12,7 +12,7 @@ StringBuilder* StringBuilder_ctor(const size_t capacity) {
 void StringBuilder_Add(StringBuilder *sb, char c) {
     if (sb->capacity == sb->count) {
         const size_t newCapacity = sb->capacity * 2;
-        char* buffer = realloc(sb->buffer, newCapacity*sizeof(char));
+        char *buffer = realloc(sb->buffer, newCapacity * sizeof(char));
         if (buffer != sb->buffer)
             free(sb->buffer);
         sb->buffer = buffer;
@@ -29,5 +29,3 @@ void StringBuilder_dtor(StringBuilder *sb, bool freeData) {
     }
     free(sb);
 }
-
-

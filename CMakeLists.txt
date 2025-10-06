@@ -9,4 +9,10 @@ add_executable(IFJcode25 main.c
         src/token.h
         src/error.h
         src/string_builder.c
-        src/string_builder.h)
+        src/string_builder.h
+        src/parser.c
+        src/parser.h
+        src/list.c
+        src/list.h
+        src/codegen.c
+        src/codegen.h)

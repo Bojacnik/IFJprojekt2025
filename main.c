@@ -1,5 +1,6 @@
 ﻿#include <stdio.h>
 
+#include "src/error.h"
 #include "src/lexer.h"
 
 int main(void) {

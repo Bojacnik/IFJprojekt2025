@@ -9,7 +9,7 @@ typedef struct StringBuilder {
     size_t count;
 } StringBuilder;
 
-StringBuilder* StringBuilder_ctor(size_t capacity);
+StringBuilder *StringBuilder_ctor(size_t capacity);
 
 void StringBuilder_Add(StringBuilder *sb, char c);
 

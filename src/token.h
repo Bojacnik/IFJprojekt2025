@@ -6,7 +6,12 @@ typedef enum TokenType {
     TKTYPE_IDENTIFIER,
     TKTYPE_PUNCTUATION,
     TKTYPE_OPERATOR,
-    TKTYPE_VARIABLE
+    TKTYPE_VARIABLE,
+    TKTYPE_LITERAL_INT,
+    TKTYPE_LITERAL_FLOAT,
+    TKTYPE_LITERAL_STRING,
+    TKTYPE_LITERAL_NIL,
+    TKTYPE_LITERAL_BOOL,
 } TokenType;
 
 typedef enum KeywordType {
@@ -32,7 +37,6 @@ typedef enum PunctuationType {
 } PunctuationType;
 
 typedef enum OperatorType {
-
     // Arithmetic operators
     OPTYPE_PLUS,
     OPTYPE_MINUS,
@@ -57,11 +61,16 @@ typedef enum OperatorType {
 
 typedef struct Token {
     TokenType type;
+
     union {
         KeywordType keyword_type;
         const char *identifier;
         PunctuationType punctuation_type;
         OperatorType operator_type;
+        int int_value;
+        float float_value;
+        const char *string_value;
+        bool bool_value;
     };
 } Token;
 
