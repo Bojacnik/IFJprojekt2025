@@ -14,5 +14,7 @@ add_executable(IFJcode25 main.c
         src/parser.h
         src/list.c
         src/list.h
+        src/parser.c
+        src/parser.h
         src/codegen.c
         src/codegen.h)

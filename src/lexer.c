@@ -1,5 +1,6 @@
 ﻿#include "lexer.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,32 +17,82 @@ typedef enum LEXER_STATE {
 } LEXER_STATE;
 
 bool isletter(const char c) { return c <= 'Z' && c >= 'A' || c <= 'z' && c >= 'a'; }
-inline bool isdigit(const char c) { return c <= '9' && c >= '0'; }
 
-inline KeywordType iskeyword(const char *c, size_t len) {
-    if (strcmp(c, "import") == 0)
-        return KWTYPE_IMPORT;
-    if (strcmp(c, "for"))
-        return KWTYPE_FOR;
-    if (strcmp(c, "class"))
-        return KWTYPE_CLASS;
-    if (strcmp(c, "static") == 0)
-        return KWTYPE_STATIC;
-    if (strcmp(c, "if") == 0)
-        return KWTYPE_IF;
-    if (strcmp(c, "else") == 0)
-        return KWTYPE_ELSE;
-    if (strcmp(c, "while") == 0)
-        return KWTYPE_WHILE;
+// Trie Tree impl
+KeywordType isKeyword(const char *s) {
+    switch (s[0]) {
+        case 'c':
+            if (strcmp(s, "class") == 0) return KWTYPE_CLASS;
+            break;
+
+        case 'e':
+            if (strcmp(s, "else") == 0) return KWTYPE_ELSE;
+            break;
+
+        case 'f':
+            switch (s[1]) {
+                case 'o':
+                    if (strcmp(s, "for") == 0) return KWTYPE_FOR;
+                    break;
+            }
+            break;
+
+        case 'i':
+            switch (s[1]) {
+                case 'f': {
+                    if (strcmp(s, "if") == 0) return KWTYPE_IF;
+                    if (strcmp(s, "Ifj") == 0) return KWTYPE_IFJ;
+                }
+                break;
+                case 'm':
+                    if (strcmp(s, "import") == 0) return KWTYPE_IMPORT;
+                    break;
+                case 's':
+                    if (strcmp(s, "is") == 0) return KWTYPE_IS;
+                    break;
+            }
+            break;
+
+        case 'n':
+            if (strcmp(s, "null") == 0) return KWTYPE_NULL;
+            break;
+
+        case 'N': {
+            if (strcmp(s, "Num") == 0) return KWTYPE_NUM;
+            if (strcmp(s, "Null") == 0) return KWTYPE_NULL;
+        }
+        break;
+
+        case 'r':
+            if (strcmp(s, "return") == 0) return KWTYPE_RETURN;
+            break;
+
+        case 's':
+            if (strcmp(s, "static") == 0) return KWTYPE_STATIC;
+            break;
+
+        case 'S':
+            if (strcmp(s, "String") == 0) return KWTYPE_STRING;
+            break;
+
+        case 'v':
+            if (strcmp(s, "var") == 0) return KWTYPE_VAR;
+            break;
+
+        case 'w':
+            if (strcmp(s, "while") == 0) return KWTYPE_WHILE;
+            break;
+    }
+
     return KWTYPE_NONE;
 }
+
 
 ErrorOrToken GetNextToken(FILE *source) {
     int c;
     ErrorOrToken token;
     LEXER_STATE state = LS_NONE;
-    StringBuilder *sb = nullptr;
-    sb = StringBuilder_ctor(512);
+    StringBuilder *sb = StringBuilder_ctor(512);
 
     if (sb == nullptr) {
         ErrorOrToken result;
@@ -51,7 +102,7 @@ ErrorOrToken GetNextToken(FILE *source) {
     }
 
     while ((c = fgetc(source) != EOF)) {
-        // if newline skip
+        // if newline, space, tab or carriage return
         if (c == '\n' || c == '\r' || c == ' ' || c == '\t') {
             switch (state) {
                 case LS_NONE:
@@ -60,7 +111,7 @@ ErrorOrToken GetNextToken(FILE *source) {
                     token.isError = false;
                     char *strId = sb->buffer;
                     StringBuilder_dtor(sb, false);
-                    const KeywordType kw = iskeyword(strId, sb->count);
+                    const KeywordType kw = isKeyword(strId);
                     if (kw != KWTYPE_NONE) {
                         return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_KEYWORD, .keyword_type = kw}};
                     }

@@ -3,10 +3,12 @@
 
 #include <stddef.h>
 
-#include "parser.h"
+// Forward deklarace ASTNode
+struct ASTNode;
+typedef struct ASTNode ASTNode;
 
 typedef struct List {
-    ASTNode *data;
+    ASTNode **data;
     size_t capacity;
     size_t count;
 } List;

@@ -1,6 +1,10 @@
 ﻿#ifndef IFJCODE25_PARSER_H
 #define IFJCODE25_PARSER_H
-#include "list.h"
+
+// Forward deklarace List
+struct List;
+typedef struct List List;
+
 #include "token.h"
 
 typedef struct ASTNode {

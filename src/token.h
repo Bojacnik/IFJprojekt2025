@@ -22,7 +22,14 @@ typedef enum KeywordType {
     KWTYPE_STATIC,
     KWTYPE_IF,
     KWTYPE_ELSE,
-    KWTYPE_WHILE
+    KWTYPE_WHILE,
+    KWTYPE_IFJ,
+    KWTYPE_IS,
+    KWTYPE_NULL,
+    KWTYPE_NUM,
+    KWTYPE_RETURN,
+    KWTYPE_STRING,
+    KWTYPE_VAR,
 } KeywordType;
 
 typedef enum PunctuationType {

@@ -1,4 +1,5 @@
 ﻿#include "list.h"
+#include "parser.h"
 
 #include <stdlib.h>
 
@@ -20,7 +21,7 @@ List *List_ctor(const size_t capacity) {
 void List_Add(List *list, const ASTNode *data) {
     if (list->count == list->capacity) {
         const size_t newCapacity = list->capacity * 2;
-        ASTNode *newData = realloc(list->data, newCapacity * sizeof(ASTNode *));
+        ASTNode **newData = realloc(list->data, newCapacity * sizeof(ASTNode *));
         if (newData != NULL) {
             list->data = newData;
             list->capacity = newCapacity;
@@ -28,13 +29,13 @@ void List_Add(List *list, const ASTNode *data) {
             return;
         }
     }
-    list->data[list->count++] = *data;
+    list->data[list->count++] = (ASTNode *)data;
 }
 
 void List_Clear(List *list, const bool freeData) {
     if (freeData) {
         for (size_t i = 0; i < list->count; i++) {
-            ASTNode_dtor(&list->data[i]);
+            ASTNode_dtor(list->data[i]);
         }
     }
     list->count = 0;
