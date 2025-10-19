@@ -14,6 +14,10 @@ typedef enum LEXER_STATE {
     LS_IDENTIFIERKEYWORD,
     LS_INTORFLOAT,
     LS_FLOAT,
+    LS_CANBECOMMENTORERROR,
+    LS_COMMENT,
+    LS_MULTILINE_COMMENT,
+    LS_MULTILINE_CANBEEND,
 } LEXER_STATE;
 
 bool isLetter(const char c) { return c <= 'Z' && c >= 'A' || c <= 'z' && c >= 'a'; }
@@ -88,25 +92,70 @@ KeywordType isKeyword(const char *s) {
     return KWTYPE_NONE;
 }
 
-ErrorOrToken GetNextToken(FILE *source) {
+ErrorOrToken GetNextToken(FILE *restrict source) {
     int c;
     ErrorOrToken token;
     LEXER_STATE state = LS_NONE;
     StringBuilder *sb = StringBuilder_ctor(512);
 
     if (sb == nullptr) {
-        ErrorOrToken result;
-        result.isError = true;
-        result.errorType = ERROR_OTHER;
-        return result;
+        token.isError = true;
+        token.errorType = ERROR_OTHER;
+        return token;
     }
 
     while ((c = fgetc(source) != EOF)) {
+        if (c == '/') {
+            switch (state) {
+                case LS_NONE:
+                    state = LS_CANBECOMMENTORERROR;
+                    break;
+                case LS_CANBECOMMENTORERROR:
+                    state = LS_COMMENT;
+                    break;
+                case LS_COMMENT:
+                case LS_MULTILINE_COMMENT:
+                    continue;
+                default:
+                    return (ErrorOrToken){
+                        .isError = true,
+                        .errorType = ERROR_LEXICAL
+                    };
+            }
+        }
+
+        if (c == '*') {
+            switch (state) {
+                case LS_CANBECOMMENTORERROR:
+                    state = LS_MULTILINE_COMMENT;
+                    break;
+                case LS_MULTILINE_COMMENT:
+                    state = LS_MULTILINE_CANBEEND;
+                    break;
+                case LS_MULTILINE_CANBEEND:
+                    state = LS_MULTILINE_COMMENT;
+                    break;
+            }
+        }
+
         // if newline, space, tab or carriage return
         if (c == '\n' || c == '\r' || c == ' ' || c == '\t') {
             switch (state) {
                 case LS_NONE:
                     continue;
+                case LS_CANBECOMMENTORERROR:
+                    state = LS_NONE;
+                    token.isError = true;
+                    token.errorType = ERROR_LEXICAL;
+                    StringBuilder_dtor(sb, true);
+                    return token;
+                case LS_MULTILINE_COMMENT:
+                    continue;
+                case LS_MULTILINE_CANBEEND:
+                    state = LS_MULTILINE_COMMENT;
+                    continue;
+                case LS_COMMENT:
+
                 case LS_IDENTIFIERKEYWORD:
                     token.isError = false;
                     char *strId = sb->buffer;
@@ -117,13 +166,13 @@ ErrorOrToken GetNextToken(FILE *source) {
                     }
                     return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_IDENTIFIER, .identifier = strId}};
                 case LS_INTORFLOAT:
-                    if (isHexadecimal((char)c)) {
+                    if (isHexadecimal((char) c)) {
                         state = LS_FLOAT;
                         StringBuilder_Add(sb, (char) c);
                         break;
                     }
                     token.isError = false;
-                    char *strInt = sb->buffer;
+                    const char *strInt = sb->buffer;
                     StringBuilder_dtor(sb, false);
                     return (ErrorOrToken){
                         .isError = false, .token = {.type = TKTYPE_LITERAL_INT, .int_value = atoi(strInt)}
@@ -139,11 +188,12 @@ ErrorOrToken GetNextToken(FILE *source) {
             break;
         }
 
-        // if starts with letter, it's identifier or can be keyword
+        // if starts with letter, it's identifier or can be keyword, or hexadecimal
         if (isLetter((char) c)) {
             switch (state) {
                 case LS_NONE:
-                    state = LS_IDENTIFIERKEYWORD;
+                    if (isHexadecimal((char) c))
+                        state = LS_IDENTIFIERKEYWORD;
                     StringBuilder_Add(sb, (char) c);
                     break;
                 case LS_IDENTIFIERKEYWORD:
