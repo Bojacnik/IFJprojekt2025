@@ -29,20 +29,18 @@ void List_Add(List *list, const ASTNode *data) {
             return;
         }
     }
-    list->data[list->count++] = (ASTNode *)data;
+    list->data[list->count++] = (ASTNode *) data;
 }
 
-void List_Clear(List *list, const bool freeData) {
-    if (freeData) {
-        for (size_t i = 0; i < list->count; i++) {
-            ASTNode_dtor(list->data[i]);
-        }
+void List_Clear(List *list) {
+    for (size_t i = 0; i < list->count; i++) {
+        ASTNode_dtor(list->data[i]);
     }
     list->count = 0;
 }
 
-void List_dtor(List *list, const bool freeData) {
-    List_Clear(list, freeData);
+void List_dtor(List *list) {
+    List_Clear(list);
     free(list->data);
     free(list);
 }

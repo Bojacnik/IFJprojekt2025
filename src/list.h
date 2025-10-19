@@ -17,8 +17,8 @@ List *List_ctor(size_t capacity);
 
 void List_Add(List *list, const ASTNode *data);
 
-void List_Clear(List *list, bool freeData);
+void List_Clear(List *list);
 
-void List_dtor(List *list, bool freeData);
+void List_dtor(List *list);
 
 #endif
