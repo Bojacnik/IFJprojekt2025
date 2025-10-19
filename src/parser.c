@@ -6,7 +6,7 @@
 void ASTNode_dtor(ASTNode *node) {
     if (node == NULL) return;
     if (node->children) {
-        List_dtor(node->children, true);
+        List_dtor(node->children);
     }
     free(node);
 }
