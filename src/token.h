@@ -12,6 +12,7 @@ typedef enum TokenType {
     TKTYPE_LITERAL_STRING,
     TKTYPE_LITERAL_NIL,
     TKTYPE_LITERAL_BOOL,
+    TKTYPE_EOF
 } TokenType;
 
 typedef enum KeywordType {

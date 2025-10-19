@@ -1,11 +1,13 @@
 ﻿#include "string_builder.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 StringBuilder *StringBuilder_ctor(const size_t capacity) {
     StringBuilder *sb = malloc(sizeof(StringBuilder));
     sb->buffer = malloc(capacity * sizeof(char));
     sb->capacity = capacity;
+    sb->count = 0;
     return sb;
 }
 
@@ -17,6 +19,14 @@ void StringBuilder_Add(StringBuilder *sb, char c) {
             free(sb->buffer);
         sb->buffer = buffer;
     }
+    sb->buffer[sb->count++] = c;
+}
+
+char *StringBuilder_ToString(const StringBuilder *sb) {
+    char *str = malloc((sb->count + 1) * sizeof(char));
+    memcpy(str, sb->buffer, sb->count * sizeof(char));
+    str[sb->count] = '\0';
+    return str;
 }
 
 void StringBuilder_Clear(StringBuilder *sb) {

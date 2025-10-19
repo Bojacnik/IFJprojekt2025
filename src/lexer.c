@@ -14,10 +14,6 @@ typedef enum LEXER_STATE {
     LS_IDENTIFIERKEYWORD,
     LS_INTORFLOAT,
     LS_FLOAT,
-    LS_CANBECOMMENTORERROR,
-    LS_COMMENT,
-    LS_MULTILINE_COMMENT,
-    LS_MULTILINE_CANBEEND,
 } LEXER_STATE;
 
 bool isLetter(const char c) { return c <= 'Z' && c >= 'A' || c <= 'z' && c >= 'a'; }
@@ -92,73 +88,28 @@ KeywordType isKeyword(const char *s) {
     return KWTYPE_NONE;
 }
 
-ErrorOrToken GetNextToken(FILE *restrict source) {
+ErrorOrToken GetNextToken(FILE *source) {
     int c;
     ErrorOrToken token;
     LEXER_STATE state = LS_NONE;
-    StringBuilder *sb = StringBuilder_ctor(512);
+    StringBuilder *sb = StringBuilder_ctor(2);
 
     if (sb == nullptr) {
-        token.isError = true;
-        token.errorType = ERROR_OTHER;
-        return token;
+        ErrorOrToken result;
+        result.isError = true;
+        result.errorType = ERROR_OTHER;
+        return result;
     }
 
-    while ((c = fgetc(source) != EOF)) {
-        if (c == '/') {
-            switch (state) {
-                case LS_NONE:
-                    state = LS_CANBECOMMENTORERROR;
-                    break;
-                case LS_CANBECOMMENTORERROR:
-                    state = LS_COMMENT;
-                    break;
-                case LS_COMMENT:
-                case LS_MULTILINE_COMMENT:
-                    continue;
-                default:
-                    return (ErrorOrToken){
-                        .isError = true,
-                        .errorType = ERROR_LEXICAL
-                    };
-            }
-        }
-
-        if (c == '*') {
-            switch (state) {
-                case LS_CANBECOMMENTORERROR:
-                    state = LS_MULTILINE_COMMENT;
-                    break;
-                case LS_MULTILINE_COMMENT:
-                    state = LS_MULTILINE_CANBEEND;
-                    break;
-                case LS_MULTILINE_CANBEEND:
-                    state = LS_MULTILINE_COMMENT;
-                    break;
-            }
-        }
-
+    while ((c = fgetc(source)) != EOF) {
         // if newline, space, tab or carriage return
         if (c == '\n' || c == '\r' || c == ' ' || c == '\t') {
             switch (state) {
                 case LS_NONE:
                     continue;
-                case LS_CANBECOMMENTORERROR:
-                    state = LS_NONE;
-                    token.isError = true;
-                    token.errorType = ERROR_LEXICAL;
-                    StringBuilder_dtor(sb, true);
-                    return token;
-                case LS_MULTILINE_COMMENT:
-                    continue;
-                case LS_MULTILINE_CANBEEND:
-                    state = LS_MULTILINE_COMMENT;
-                    continue;
-                case LS_COMMENT:
-
                 case LS_IDENTIFIERKEYWORD:
                     token.isError = false;
-                    char *strId = sb->buffer;
+                    char *strId = StringBuilder_ToString(sb);
                     StringBuilder_dtor(sb, false);
                     const KeywordType kw = isKeyword(strId);
                     if (kw != KWTYPE_NONE) {
@@ -166,20 +117,20 @@ ErrorOrToken GetNextToken(FILE *restrict source) {
                     }
                     return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_IDENTIFIER, .identifier = strId}};
                 case LS_INTORFLOAT:
-                    if (isHexadecimal((char) c)) {
+                    if (isHexadecimal((char)c)) {
                         state = LS_FLOAT;
                         StringBuilder_Add(sb, (char) c);
                         break;
                     }
                     token.isError = false;
-                    const char *strInt = sb->buffer;
+                    char *strInt = StringBuilder_ToString(sb);
                     StringBuilder_dtor(sb, false);
                     return (ErrorOrToken){
                         .isError = false, .token = {.type = TKTYPE_LITERAL_INT, .int_value = atoi(strInt)}
                     };
                 case LS_FLOAT:
                     token.isError = false;
-                    char *strFloat = sb->buffer;
+                    char *strFloat = StringBuilder_ToString(sb);
                     StringBuilder_dtor(sb, false);
                     return (ErrorOrToken){
                         .isError = false, .token = {.type = TKTYPE_LITERAL_FLOAT, .float_value = (float) atof(strFloat)}
@@ -188,12 +139,11 @@ ErrorOrToken GetNextToken(FILE *restrict source) {
             break;
         }
 
-        // if starts with letter, it's identifier or can be keyword, or hexadecimal
+        // if starts with letter, it's identifier or can be keyword
         if (isLetter((char) c)) {
             switch (state) {
                 case LS_NONE:
-                    if (isHexadecimal((char) c))
-                        state = LS_IDENTIFIERKEYWORD;
+                    state = LS_IDENTIFIERKEYWORD;
                     StringBuilder_Add(sb, (char) c);
                     break;
                 case LS_IDENTIFIERKEYWORD:
@@ -215,23 +165,42 @@ ErrorOrToken GetNextToken(FILE *restrict source) {
                     return result2;
             }
         }
-
-        if (isdigit((char) c)) {
+       else if (isdigit((char) c)) {
             switch (state) {
                 case LS_NONE:
-                    state = LS_INTORFLOAT;
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_IDENTIFIERKEYWORD:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_INTORFLOAT:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
-                case LS_FLOAT:
-                    StringBuilder_Add(sb, (char) c);
-                    break;
+                state = LS_IDENTIFIERKEYWORD;
+                StringBuilder_Add(sb, (char)c);
+                break;
+            case LS_IDENTIFIERKEYWORD:
+                StringBuilder_Add(sb, (char)c);
+                break;
+            case LS_INTORFLOAT:
+                // ERROR
+                ErrorOrToken result;
+                result.isError = true;
+                result.errorType = ERROR_LEXICAL;
+                StringBuilder_dtor(sb, true);
+                return result;
+            case LS_FLOAT:
+                // ERROR
+                ErrorOrToken result2;
+                result2.isError = true;
+                result2.errorType = ERROR_LEXICAL;
+                StringBuilder_dtor(sb, true);
+                return result2;
             }
         }
     }
+    // EOF reached
+    if (state == LS_NONE)
+    {
+        StringBuilder_dtor(sb, false);
+        return (ErrorOrToken){.isError = false, .token = {.type = TKTYPE_EOF}};
+    }
+    // if we reach here, its an error
+    ErrorOrToken result3;
+    result3.isError = true;
+    result3.errorType = ERROR_LEXICAL;
+    StringBuilder_dtor(sb, true);
+    return result3;
 }
