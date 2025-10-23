@@ -17,6 +17,6 @@ void StringBuilder_Clear(StringBuilder *sb);
 
 char *StringBuilder_ToString(const StringBuilder *sb);
 
-void StringBuilder_dtor(StringBuilder *sb, bool freeData);
+void StringBuilder_dtor(StringBuilder *sb);
 
 #endif

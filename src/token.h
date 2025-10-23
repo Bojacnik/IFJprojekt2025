@@ -1,9 +1,10 @@
 ﻿#ifndef IFJCODE25_TOKEN_H
 #define IFJCODE25_TOKEN_H
 
-typedef enum TokenType {
+typedef enum TOKEN_TYPE {
     TKTYPE_KEYWORD,
     TKTYPE_IDENTIFIER,
+    TKTYPE_INBUILTFUNCTION,
     TKTYPE_PUNCTUATION,
     TKTYPE_OPERATOR,
     TKTYPE_VARIABLE,
@@ -15,7 +16,7 @@ typedef enum TokenType {
     TKTYPE_EOF
 } TokenType;
 
-typedef enum KeywordType {
+typedef enum KEYWORD_TYPE {
     KWTYPE_NONE,
     KWTYPE_IMPORT,
     KWTYPE_FOR,
@@ -31,9 +32,9 @@ typedef enum KeywordType {
     KWTYPE_RETURN,
     KWTYPE_STRING,
     KWTYPE_VAR,
-} KeywordType;
+} KEYWORD_TYPE;
 
-typedef enum PunctuationType {
+typedef enum PUNCTUATION_TYPE {
     PTTYPE_OPENPARENTHESIS,
     PTTYPE_CLOSEPARENTHESIS,
     PTTYPE_OPENBRACKET,
@@ -41,10 +42,11 @@ typedef enum PunctuationType {
     PTTYPE_OPENBRACE,
     PTTYPE_CLOSEBRACE,
     PTTYPE_UNDERSCORE,
-    PTTYPE_COMMA
-} PunctuationType;
+    PTTYPE_COMMA,
+    PTTYPE_SEMICOLON,
+} PUNCTUATION_TYPE;
 
-typedef enum OperatorType {
+typedef enum OPERATOR_TYPE {
     // Arithmetic operators
     OPTYPE_PLUS,
     OPTYPE_MINUS,
@@ -65,16 +67,27 @@ typedef enum OperatorType {
     OPTYPE_GREATER,
     OPTYPE_GREATEREQUAL,
     OPTYPE_LESSEQUAL,
-} OperatorType;
+
+    OPTYPE_ASSIGN,
+} OPERATOR_TYPE;
+
+typedef enum INBUILTFUNCTION_TYPE {
+    INBUILT_NONE,
+    INBUILT_STRING,
+    INBUILT_WRITE,
+    INBUILT_READNUM,
+    INBUILT_FLOOR
+} INBUILTFUNCTION_TYPE;
 
 typedef struct Token {
     TokenType type;
 
     union {
-        KeywordType keyword_type;
+        KEYWORD_TYPE keyword_type;
+        INBUILTFUNCTION_TYPE inbuilt_function_type;
         const char *identifier;
-        PunctuationType punctuation_type;
-        OperatorType operator_type;
+        PUNCTUATION_TYPE punctuation_type;
+        OPERATOR_TYPE operator_type;
         int int_value;
         float float_value;
         const char *string_value;
