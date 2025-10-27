@@ -1,0 +1,125 @@
+﻿# UPPERCASE NONTERMINÁLY
+# lowercase terminály
+# ϵ - epsilon (prázdný řetězec)
+# $ - end of input marker
+
+START -> import "ifj 25" for Ifj
+
+CLASS_DEF -> class Program { STATEMENTS }
+
+# STATIC_FUNC_DEF ALSO INCLUDES SETTERS
+CLASS_STATEMENTS -> STATIC_FUNC_DEF CLASS_STATEMENTS
+CLASS_STATEMENTS -> STATIC_GETTER_DEF CLASS_STATEMENTS
+CLASS_STATEMENTS -> ϵ
+
+STATIC_FUNC_DEF -> static id ( PARAMS ) { FUNC_BODY }
+STATIC_GETTER_DEF -> static id { FUNC_BODY }
+
+PARAMS -> id PARAMS_TAIL
+PARAMS_TAIL -> , id PARAMS_TAIL
+PARAMS_TAIL -> ϵ
+PARAMS -> ϵ
+
+FUNC_BODY -> STATEMENTS
+STATEMENTS -> STATEMENT STATEMENTS
+STATEMENTS -> ϵ
+
+STATEMENT -> id ( ARGS )            # function call
+
+ARGS -> EXPR ARGS_TAIL
+ARGS_TAIL -> , EXPR ARGS_TAIL
+ARGS_TAIL -> ϵ
+ARGS -> ϵ
+
+STATEMENT -> if ( EXPR ) { STATEMENTS } ELSE_CLAUSE
+STATEMENT -> id = EXPR              # assignment
+STATEMENT -> var id                 # variable declaration
+STATEMENT -> var id = EXPR          # variable declaration with initialization
+STATEMENT -> while ( EXPR ) { STATEMENTS }
+STATEMENT -> { STATEMENTS }
+ELSE_CLAUSE -> else { STATEMENTS }
+ELSE_CLAUSE -> ϵ
+STATEMENT -> RETURN_STATEMENT
+
+RETURN_STATEMENT -> return EXPR
+RETURN_STATEMENT -> return
+
+LL část gramatiky FIRST FOLLOW z tabulky výše
+
+FIRST množiny
+FIRST(START) = { import }
+
+FIRST(CLASS_DEF) = { class }
+
+FIRST(CLASS_STATEMENTS) = { static, ϵ }
+
+FIRST(STATIC_FUNC_DEF) = { static }
+
+FIRST(STATIC_GETTER_DEF) = { static }
+
+FIRST(PARAMS) = { id, ϵ }
+
+FIRST(PARAMS_TAIL) = { ,, ϵ }
+
+FIRST(FUNC_BODY) = { id, if, var, while, {, return, ϵ }
+
+FIRST(STATEMENTS) = { id, if, var, while, {, return, ϵ }
+
+FIRST(STATEMENT) = { id, if, var, while, {, return }
+
+FIRST(ARGS) = { EXPR, ϵ } (ale EXPR předáno bottom-up parseru)
+
+FIRST(ARGS_TAIL) = { ,, ϵ }
+
+FIRST(ELSE_CLAUSE) = { else, ϵ }
+
+FIRST(RETURN_STATEMENT) = { return }
+
+FOLLOW množiny
+FOLLOW(START) = { $ }
+
+FOLLOW(CLASS_DEF) = { $ }
+
+FOLLOW(CLASS_STATEMENTS) = { } (skončí za poslední funkcí/getterem v těle třídy)
+
+FOLLOW(STATIC_FUNC_DEF) = { static, ϵ } (další class článek, nebo konec seznamu)
+
+FOLLOW(STATIC_GETTER_DEF) = { static, ϵ }
+
+FOLLOW(PARAMS) = { ) }
+
+FOLLOW(PARAMS_TAIL) = { ) }
+
+FOLLOW(FUNC_BODY) = { } } (konec těla funkce/getteru/setteru)
+
+FOLLOW(STATEMENTS) = { } }, else, $ }
+
+FOLLOW(STATEMENT) = { id, if, var, while, {, return, }, else, $ }
+
+FOLLOW(ARGS) = { ) }
+
+FOLLOW(ARGS_TAIL) = { ) }
+
+FOLLOW(ELSE_CLAUSE) = { id, if, var, while, {, return, }, else, $ }
+
+FOLLOW(RETURN_STATEMENT) = { id, if, var, while, {, return, }, else, $ }
+
+# EXPR WILL BE HANDLED BOTTOM-UP UNLIKE THE REST OF THE GRAMMAR
+EXPR -> EXPR + EXPR
+EXPR -> EXPR - EXPR
+EXPR -> EXPR * EXPR
+EXPR -> EXPR / EXPR
+EXPR -> EXPR % EXPR
+EXPR -> EXPR > EXPR
+EXPR -> EXPR < EXPR
+EXPR -> EXPR >= EXPR
+EXPR -> EXPR <= EXPR
+EXPR -> EXPR == EXPR
+EXPR -> EXPR != EXPR
+EXPR -> EXPR && EXPR
+EXPR -> EXPR || EXPR
+EXPR -> ! EXPR
+EXPR -> ( EXPR )
+EXPR -> id
+EXPR -> literal
+
