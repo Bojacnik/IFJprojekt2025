@@ -1,0 +1,21 @@
+import "ifj25" for Ifj
+class Program {
+    static factorial(n) {
+        var result
+        if (n < 2) {
+            result = 1
+        } else {
+            var decremented_n
+            decremented_n = n - 1
+            result = factorial(decremented_n)
+            result = n * result
+        }
+        return result
+    }
+    static main() {
+        var v
+        v = factorial(10)
+        Ifj.write(v)
+        Ifj.write("\n")
+    }
+}

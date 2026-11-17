@@ -1,0 +1,8 @@
+import "ifj25" for Ifj
+class Program {
+    static main() {
+        var a
+        a = 1
+        a = Ifj.length(a)
+    }
+}

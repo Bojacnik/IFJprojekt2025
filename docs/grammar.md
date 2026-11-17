@@ -42,7 +42,7 @@ Expressions (`EXPR`, `EXPR⁻`, `EXPR_REST`) are parsed by the precedence parser
 17 STMT         → id ID_TAIL
 18 STMT         → gid = RHS
 19 STMT         → BUILTIN_CALL
-20 STMT         → if ( EXPR ) BLOCK else BLOCK
+20 STMT         → if ( EXPR ) BLOCK ELSE_PART
 21 STMT         → while ( EXPR ) BLOCK
 22 STMT         → return RET_VAL
 23 STMT         → BLOCK
@@ -68,6 +68,8 @@ Expressions (`EXPR`, `EXPR⁻`, `EXPR_REST`) are parsed by the precedence parser
 43 TERM         → float
 44 TERM         → string
 45 TERM         → null
+46 ELSE_PART    → else BLOCK                     -- else is optional: ex0 omits it
+47 ELSE_PART    → ε
 ```
 
 Notes:
@@ -103,6 +105,7 @@ Expression start without `id`: `exprstart⁻` = `gid int float string null (`.
 | ARGS | `id gid int float string null` ε | `)` |
 | ARGS_TAIL | `,` ε | `)` |
 | TERM | `id gid int float string null` | `,` `)` |
+| ELSE_PART | `else` ε | `EOL` |
 
 ## 4. LL table
 
@@ -129,6 +132,7 @@ so the grammar is LL(1).
 | ARGS | `id` `gid` `int` `float` `string` `null`→36, `)`→37 |
 | ARGS_TAIL | `,`→38, `)`→39 |
 | TERM | `id`→40, `gid`→41, `int`→42, `float`→43, `string`→44, `null`→45 |
+| ELSE_PART | `else`→46, `EOL`→47 |
 
 In the recursive-descent parser every row is one function and every cell one
 `case` of `switch (p->cur.kind)`.
