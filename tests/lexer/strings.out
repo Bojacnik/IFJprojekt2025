@@ -1,0 +1,7 @@
+1:1 STRING ""
+1:4 STRING "abc"
+1:10 STRING "a\nb\t\"q\"\\"
+1:26 STRING "Ab"
+1:37 STRING "Ahoj\n\"Sve'te \\\""
+1:60 EOL
+2:1 EOF

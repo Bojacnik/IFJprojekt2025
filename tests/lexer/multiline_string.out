@@ -1,0 +1,14 @@
+1:1 KW_VAR
+1:5 IDENT x
+1:7 ASSIGN
+1:9 STRING "A\n   hoj s\\x22\"vete"
+3:8 EOL
+4:1 IDENT y
+4:3 ASSIGN
+4:5 STRING "  only"
+6:6 EOL
+7:1 IDENT z
+7:3 ASSIGN
+7:5 STRING "a\"\"b\"c"
+7:17 EOL
+8:1 EOF

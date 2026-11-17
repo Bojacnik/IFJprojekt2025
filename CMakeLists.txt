@@ -1,24 +1,10 @@
-﻿cmake_minimum_required(VERSION 4.0)
+﻿cmake_minimum_required(VERSION 3.16)
 project(IFJcode25 C)
 
-set(CMAKE_C_STANDARD 23)
+# The graded build is the Makefile (gcc on merlin). This file is only for IDEs.
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Wextra -pedantic)
 
-add_executable(IFJcode25 main.c
-        src/lexer.c
-        src/lexer.h
-        src/token.h
-        src/error.h
-        src/string_builder.c
-        src/string_builder.h
-        src/parser.c
-        src/parser.h
-        src/list.c
-        src/list.h
-        src/parser.c
-        src/parser.h
-        src/codegen.c
-        src/codegen.h
-        src/ast_node.c
-        src/ast_node.h
-        src/cst_node.c
-        src/cst_node.h)
+file(GLOB SOURCES src/*.c)
+add_executable(IFJcode25 main.c ${SOURCES})

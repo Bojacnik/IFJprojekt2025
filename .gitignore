@@ -4,7 +4,7 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
+# (no "Makefile" here: the hand-written Makefile is required for submission)
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
@@ -93,4 +93,8 @@ fabric.properties
 
 main
 main.exe
+
+# Build outputs of the Makefile
+*.o
+/ifj25
 

@@ -1,0 +1,7 @@
+var x = """A
+   hoj s\x22"vete
+    """
+y = """
+  only
+  """
+z = """a""b"c"""
