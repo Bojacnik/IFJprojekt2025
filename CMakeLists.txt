@@ -7,4 +7,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -pedantic)
 
 file(GLOB SOURCES src/*.c)
-add_executable(IFJcode25 main.c ${SOURCES})
+add_executable(ifj25 ${SOURCES})
+target_include_directories(ifj25 PRIVATE include)
+target_link_libraries(ifj25 PRIVATE m)

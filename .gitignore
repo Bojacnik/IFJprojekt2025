@@ -95,6 +95,9 @@ main
 main.exe
 
 # Build outputs of the Makefile
+/build/
 *.o
+*.d
 /ifj25
+*.tgz
 

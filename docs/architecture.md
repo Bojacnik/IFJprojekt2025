@@ -4,9 +4,11 @@
 stdin → lexer.c → parser.c (+ expr.c) → AST (ast.c) → semantic.c → codegen.c → stdout
 ```
 
+Sources are in `src/`, the matching headers in `include/`.
+
 | File | Part |
 |---|---|
-| `main.c` | entry point, `--tokens` debug dump |
+| `src/main.c` | entry point, `--tokens` debug dump |
 | `src/lexer.c` | finite automaton (`docs/lexer-fsm.md`), EOL rule |
 | `src/parser.c` | recursive descent, one function per LL table row (`docs/grammar.md`) |
 | `src/expr.c` | operator precedence analysis (`docs/grammar.md` §5) |

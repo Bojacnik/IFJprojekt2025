@@ -1,6 +1,6 @@
 # IFJ25 – LL(1) grammar, LL table, precedence table
 
-Terminals are the token kinds from `src/token.h`. In this document:
+Terminals are the token kinds from `include/token.h`. In this document:
 `id` = `IDENT`, `gid` = `GID` (global `__x`), `int`/`float`/`string` = literals,
 `null` = `KW_NULL`, `Ifj` = `KW_IFJ`, `EOL` = newline token, `eof` = end of input.
 
